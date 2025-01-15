@@ -33,7 +33,7 @@ jobs:
         run: |
           docker build -f ./api/.deploy/Dockerfile -t alonecat/24contenthost-gallery-api:latest ./api
           docker push alonecat/24contenthost-gallery-api:latest
-          docker build -f .docker/nginx/Dockerfile -t alonecat/24contenthost-gallery-api-nginx:latest ./api
+          docker build -f ./api/.deploy/nginx/Dockerfile -t alonecat/24contenthost-gallery-api-nginx:latest ./api
           docker push alonecat/24contenthost-gallery-api-nginx:latest
 
       - name: Trigger deploy workflow
