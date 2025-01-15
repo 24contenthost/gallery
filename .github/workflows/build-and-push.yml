@@ -1,0 +1,45 @@
+name: Build and Push Fullstack Docker Images
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # Сборка и пуш для клиента
+      - name: Build and Push Client Docker Image
+        run: |
+          docker build -f ./client/.deploy/Dockerfile -t alonecat/24contenthost-gallery-client:latest ./client
+          docker push alonecat/24contenthost-gallery-client:latest
+
+      - name: Build and Push API Docker Image
+        run: |
+          docker build -f ./api/.deploy/Dockerfile -t alonecat/24contenthost-gallery-api:latest ./api
+          docker push alonecat/24contenthost-gallery-api:latest
+          docker build -f .docker/nginx/Dockerfile -t alonecat/24contenthost-gallery-api-nginx:latest ./api
+          docker push alonecat/24contenthost-gallery-api-nginx:latest
+
+      - name: Trigger deploy workflow
+        run: |
+          curl -X POST \
+          -H "Authorization: token ${{ secrets.PAT }}" \
+          -d '{"event_type": "docker-push", "client_payload": {"ref": "refs/tags/latest", "tag": "latest"}}' \
+          https://api.github.com/repos/gallery-24contenthost/deploy/dispatches \
+          -i
