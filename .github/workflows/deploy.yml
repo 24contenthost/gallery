@@ -15,7 +15,7 @@ jobs:
 
       - name: Deploy and run migrations
         env:
-          COMPOSE_PROJECT_NAME: ${{ vars.COMPOSE_PROJECT_NAME }}
+          COMPOSE_PROJECT_NAME: gallery
           APP_ENV: ${{ secrets.ENV }}
           APP_DEBUG: false
           APP_NAME: ${{ secrets.APP_NAME }}
