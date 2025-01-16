@@ -44,7 +44,9 @@ services:
 
     db:
         image: mysql:8.0
-        restart: always
+        restart: on-failure
+        restart_policy:
+            max_attempts: 5
         environment:
             MYSQL_DATABASE: ${DB_DATABASE}
             MYSQL_USER: ${DB_USERNAME}
