@@ -56,16 +56,3 @@ jobs:
           docker build -f ./api/.deploy/nginx/Dockerfile -t alonecat/24contenthost-gallery-api-nginx:latest ./api
           docker push alonecat/24contenthost-gallery-api-nginx:latest
 
-  # Job для запуска деплоя после сборки всех образов
-  trigger_deploy:
-    runs-on: ubuntu-latest
-    needs: [build_client, build_api]  # Зависимость от успешной сборки клиента и API
-
-    steps:
-      - name: Trigger deploy workflow
-        run: |
-          curl -X POST \
-          -H "Authorization: token ${{ secrets.PAT }}" \
-          -d '{"event_type": "docker-push", "client_payload": {"ref": "refs/tags/latest", "tag": "latest"}}' \
-          https://api.github.com/repos/gallery-24contenthost/deploy/dispatches \
-          -i
