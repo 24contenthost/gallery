@@ -10,7 +10,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: [self-hosted, gallery-deploy]
+    runs-on: [self-hosted, gallery]
 
     steps:
       - name: Checkout repository
