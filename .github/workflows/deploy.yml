@@ -1,0 +1,55 @@
+on:
+  push:
+    branches:
+      - main
+  workflow_run:
+    workflows: [ "Build and Push Fullstack Docker Images" ]
+    types:
+      - completed
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: [self-hosted, gallery-deploy]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Deploy and run migrations
+        env:
+          APP_ENV: production
+          APP_DEBUG: false
+          APP_NAME: "Gallery Api"
+          APP_KEY: ${{ secrets.APP_KEY }}
+          APP_URL: ${{ secrets.APP_URL }}
+          DB_CONNECTION: ${{ secrets.DB_CONNECTION }}
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+          DB_DATABASE: ${{ secrets.DB_DATABASE }}
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          SANCTUM_STATEFUL_DOMAINS: ${{ secrets.SANCTUM_STATEFUL_DOMAINS }}
+          SESSION_DOMAIN: ${{ secrets.SESSION_DOMAIN }}
+          FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
+          NODE_ENV: production
+          VITE_BASE_URL: ${{ secrets.VITE_BASE_URL }}
+          COMPOSE_PROJECT_NAME: gallery
+        run: |
+          echo "COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME}"
+
+          docker-compose pull
+          docker-compose down --volumes --remove-orphans || echo "No containers to remove"
+          docker-compose up -d
+
+          echo "Waiting for MySQL to be ready..."
+          until docker-compose exec db mysqladmin ping -h localhost -u root -p"${DB_PASSWORD}" --silent; do
+          echo "Waiting for MySQL..."
+          sleep 2
+          done
+          
+          echo "MySQL is ready!"
+          sleep 10
+
+          docker-compose exec app php artisan migrate --force
+          echo "Deployment completed successfully!"
