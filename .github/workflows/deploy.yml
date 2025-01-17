@@ -45,5 +45,5 @@ jobs:
           docker-compose -f ./.deploy/docker-compose.yml up -d
 
 
-          docker-compose exec app php artisan migrate
+          docker-compose exec app php artisan migrate --force
           echo "Deployment completed successfully!"
