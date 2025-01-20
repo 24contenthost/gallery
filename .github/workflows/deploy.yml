@@ -34,7 +34,7 @@ jobs:
           DB_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
           DB_HOST: ${{ secrets.MYSQL_SERVICE_NAME }}
           DB_PORT: ${{ secrets.MYSQL_PORT }}
-          DB_DATABASE: ${{ secrets.MYSQL_DATABASE_GALLERY }
+          DB_DATABASE: ${{ secrets.MYSQL_DATABASE_GALLERY }}
 
 
         run: |
