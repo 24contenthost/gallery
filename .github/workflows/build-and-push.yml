@@ -1,0 +1,61 @@
+name: Build and Push Fullstack Docker Images
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'api/**'
+      - 'client/**'
+  workflow_dispatch:
+
+jobs:
+  # Job для сборки и пуша клиента
+  build_client:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and Push Client Docker Image
+        run: |
+          docker build -f ./client/.deploy/Dockerfile -t alonecat/24contenthost-gallery-client:latest ./client
+          docker push alonecat/24contenthost-gallery-client:latest
+
+  # Job для сборки и пуша API
+  build_api:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and Push API Docker Image
+        run: |
+          docker build -f ./api/.deploy/Dockerfile -t alonecat/24contenthost-gallery-api:latest ./api
+          docker push alonecat/24contenthost-gallery-api:latest
+
+      - name: Build and Push API Nginx Docker Image
+        run: |
+          docker build -f ./api/.deploy/nginx/Dockerfile -t alonecat/24contenthost-gallery-api-nginx:latest ./api
+          docker push alonecat/24contenthost-gallery-api-nginx:latest
+

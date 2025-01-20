@@ -1,0 +1,66 @@
+name: "gallery"
+services:
+    nginx-api:
+        image: alonecat/24contenthost-gallery-api-nginx
+        restart: unless-stopped
+        volumes:
+            - app_data:/var/www
+        ports:
+            - "8000:8000"
+        depends_on:
+            - app
+        networks:
+            - content_host_network
+        labels:
+            - "traefik.enable=true"
+            - "traefik.http.routers.api.rule=Host(`api.gallery.24contenthost.ru`)"
+            - "traefik.http.routers.api.entrypoints=websecure"
+            - "traefik.http.routers.api.tls.certresolver=letsencrypt"
+            - "traefik.http.services.api.loadbalancer.server.port=8000"
+
+    app:
+        image: alonecat/24contenthost-gallery-api:latest
+        environment:
+            - APP_KEY=${APP_KEY}
+            - APP_NAME=${APP_NAME}
+            - APP_ENV=${APP_ENV}
+            - APP_URL=${APP_URL}
+            - FRONTEND_URL=${FRONTEND_URL}
+            - SESSION_DOMAIN=${SESSION_DOMAIN}
+            - SANCTUM_STATEFUL_DOMAINS=${SANCTUM_STATEFUL_DOMAINS}
+            - DB_CONNECTION=${DB_CONNECTION}
+            - DB_HOST=${DB_HOST}
+            - DB_PORT=${DB_PORT}
+            - DB_DATABASE=${DB_DATABASE}
+            - DB_USERNAME=${DB_USERNAME}
+            - DB_PASSWORD=${DB_PASSWORD}
+            - APP_DEBUG=${APP_DEBUG}
+        volumes:
+            - app_data:/var/www
+        networks:
+            - content_host_network
+
+    app-client:
+        image: alonecat/24contenthost-gallery-client:latest
+        restart: unless-stopped
+        ports:
+            - "3000:3000"
+        environment:
+            NODE_ENV: ${NODE_ENV}
+            VITE_BASE_URL: ${VITE_BASE_URL}
+        labels:
+            - "traefik.enable=true"
+            - "traefik.http.routers.client-app-client.rule=Host(`gallery.24contenthost.ru`)"
+            - "traefik.http.routers.client-app-client.entrypoints=websecure"
+            - "traefik.http.routers.client-app-client.tls.certresolver=letsencrypt"
+            - "traefik.http.services.client-app-client.loadbalancer.server.port=3000"
+        networks:
+            - content_host_network
+
+
+networks:
+    content_host_network:
+        external: true
+
+volumes:
+    app_data:
