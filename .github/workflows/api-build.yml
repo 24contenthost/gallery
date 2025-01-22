@@ -1,4 +1,4 @@
-name: Build and Push API Docker Image
+name: Build and Deploy API Application
 
 on:
   push:
@@ -9,8 +9,10 @@ on:
   workflow_dispatch:
 
 jobs:
+  # Job для сборки и пуша API
   build_api:
     runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' && contains(github.event.head_commit.message, 'build') }} # Можно добавить условие на пуш с определенным сообщением, например
 
     steps:
       - name: Checkout Repository
@@ -34,3 +36,47 @@ jobs:
         run: |
           docker build -f ./api/.deploy/nginx/Dockerfile -t alonecat/24contenthost-gallery-api-nginx:latest ./api
           docker push alonecat/24contenthost-gallery-api-nginx:latest
+
+  # Job для деплоя API
+  deploy_api:
+    runs-on: [self-hosted, gallery]
+    if: ${{ github.event_name == 'workflow_run' }} # Срабатывает только после завершения build_api
+
+    needs: build_api # Указывает, что этот job зависит от build_api
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            .deploy/docker-compose.yml
+
+      - name: Deploy and run migrations for API
+        env:
+          COMPOSE_PROJECT_NAME: gallery
+          APP_ENV: ${{ secrets.ENV }}
+          APP_DEBUG: false
+          APP_NAME: ${{ secrets.APP_NAME }}
+          APP_URL:  ${{ secrets.APP_URL }}
+          FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
+          SESSION_DOMAIN: ${{ secrets.SESSION_DOMAIN }}
+          SANCTUM_STATEFUL_DOMAINS: ${{ secrets.SANCTUM_STATEFUL_DOMAINS }}
+          DB_CONNECTION: ${{ secrets.DB_CONNECTION }}
+          NODE_ENV: ${{ secrets.ENV }}
+          VITE_BASE_URL: ${{ secrets.VITE_BASE_URL }}
+          APP_KEY: ${{ secrets.APP_KEY }}
+          DB_USERNAME: ${{ secrets.MYSQL_USER }}
+          DB_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+          DB_HOST: ${{ secrets.MYSQL_SERVICE_NAME }}
+          DB_PORT: ${{ secrets.MYSQL_PORT }}
+          DB_DATABASE: ${{ secrets.MYSQL_DATABASE_GALLERY }}
+
+        run: |
+          echo "COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME}"
+
+          docker-compose -f ./.deploy/docker-compose.yml pull
+          docker-compose -f ./.deploy/docker-compose.yml down --remove-orphans || echo "No containers to remove"
+          docker-compose -f ./.deploy/docker-compose.yml up -d
+
+          docker-compose exec app php artisan migrate --force
+          echo "API Deployment completed successfully!"
