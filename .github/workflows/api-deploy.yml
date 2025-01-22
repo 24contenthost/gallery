@@ -8,9 +8,16 @@ on:
   workflow_dispatch:  # Возможность ручного запуска
 
 jobs:
+  # Добавляем хотя бы один job, который не зависит от других
+  trigger_deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Placeholder step
+        run: echo "This is a placeholder job to ensure the workflow is valid."
+
   deploy_api:
     runs-on: [self-hosted, gallery]
-    needs: build_api  # Этот job сработает только после успешного завершения build_api
+    needs: trigger_deploy  # Этот job сработает после успешного завершения trigger_deploy
 
     steps:
       - name: Checkout repository
