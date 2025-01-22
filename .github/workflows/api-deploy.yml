@@ -8,16 +8,9 @@ on:
   workflow_dispatch:  # Возможность ручного запуска
 
 jobs:
-  # Добавляем хотя бы один job, который не зависит от других
-  trigger_deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Placeholder step
-        run: echo "This is a placeholder job to ensure the workflow is valid."
-
   deploy_api:
     runs-on: [self-hosted, gallery]
-    needs: trigger_deploy  # Этот job сработает после успешного завершения trigger_deploy
+    needs: []  # Убираем зависимость от других jobs
 
     steps:
       - name: Checkout repository
@@ -46,12 +39,4 @@ jobs:
           DB_PORT: ${{ secrets.MYSQL_PORT }}
           DB_DATABASE: ${{ secrets.MYSQL_DATABASE_GALLERY }}
 
-        run: |
-          echo "COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME}"
 
-          docker-compose -f ./.deploy/docker-compose.yml pull
-          docker-compose -f ./.deploy/docker-compose.yml down --remove-orphans || echo "No containers to remove"
-          docker-compose -f ./.deploy/docker-compose.yml up -d
-
-          docker-compose exec app php artisan migrate --force
-          echo "API Deployment completed successfully!"
