@@ -2,5 +2,5 @@
 </script>
 <template>
 
-  About view
+  About view !!
 </template>
