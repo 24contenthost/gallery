@@ -1,9 +1,18 @@
+name: Deploy FullStack Application
+
 on:
   workflow_run:
-    workflows: [ "Build and Push Fullstack Docker Images" ]
+    workflows:
+      - "Build and Push API Docker Images"  # Сборка и пуш API
+      - "Build and Push Client Docker Images"  # Сборка и пуш клиентской части
     types:
       - completed
-  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - '.deploy/**'  # Срабатывает при изменениях в папке .deploy
+  workflow_dispatch:  # Возможность ручного запуска
 
 jobs:
   deploy:

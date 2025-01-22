@@ -1,4 +1,4 @@
-name: Build API Application
+name: Build and Push API Docker Images
 
 on:
   push:
@@ -6,7 +6,6 @@ on:
       - main
     paths:
       - 'api/**'  # Только изменения в api
-  workflow_dispatch:  # Возможность ручного запуска
 
 jobs:
   build_api:

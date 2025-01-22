@@ -1,4 +1,4 @@
-name: Build and Push Client Docker Image
+name: Build and Push Client Docker Images
 
 on:
   push:
@@ -6,7 +6,6 @@ on:
       - main
     paths:
       - 'client/**'
-  workflow_dispatch:
 
 jobs:
   build_client:
