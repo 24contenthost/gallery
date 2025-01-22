@@ -2,15 +2,15 @@ name: Deploy API Application
 
 on:
   workflow_run:
-    workflows:
-      - "Build and Push API Docker Image" # Имя workflow из 1го файла
+    workflows: ["Build API Application"]  # Этот workflow зависит от завершения сборки
     types:
       - completed
-  workflow_dispatch:
+  workflow_dispatch:  # Возможность ручного запуска
 
 jobs:
   deploy_api:
     runs-on: [self-hosted, gallery]
+    needs: build_api  # Этот job сработает только после успешного завершения build_api
 
     steps:
       - name: Checkout repository
