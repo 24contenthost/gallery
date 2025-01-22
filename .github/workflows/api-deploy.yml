@@ -1,22 +1,13 @@
-name: Deploy API Application
-
 on:
   workflow_run:
-    workflows: ["Build API Application"]  # Этот workflow зависит от завершения сборки
+    workflows: [ "Build and Push Fullstack Docker Images" ]
     types:
       - completed
-  push:
-    branches:
-      - main
-    paths:
-      - '.deploy/**'  # Этот workflow запускается при изменениях в папке .deploy
-  workflow_dispatch:  # Возможность ручного запуска
+  workflow_dispatch:
 
 jobs:
-  # Job для деплоя API
-  deploy_api:
+  deploy:
     runs-on: [self-hosted, gallery]
-    needs: build_api  # Этот job сработает только после успешной сборки
 
     steps:
       - name: Checkout repository
@@ -25,13 +16,13 @@ jobs:
           sparse-checkout: |
             .deploy/docker-compose.yml
 
-      - name: Deploy and run migrations for API
+      - name: Deploy and run migrations
         env:
           COMPOSE_PROJECT_NAME: gallery
           APP_ENV: ${{ secrets.ENV }}
           APP_DEBUG: false
           APP_NAME: ${{ secrets.APP_NAME }}
-          APP_URL: ${{ secrets.APP_URL }}
+          APP_URL:  ${{ secrets.APP_URL }}
           FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
           SESSION_DOMAIN: ${{ secrets.SESSION_DOMAIN }}
           SANCTUM_STATEFUL_DOMAINS: ${{ secrets.SANCTUM_STATEFUL_DOMAINS }}
@@ -45,6 +36,7 @@ jobs:
           DB_PORT: ${{ secrets.MYSQL_PORT }}
           DB_DATABASE: ${{ secrets.MYSQL_DATABASE_GALLERY }}
 
+
         run: |
           echo "COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME}"
 
@@ -52,5 +44,6 @@ jobs:
           docker-compose -f ./.deploy/docker-compose.yml down --remove-orphans || echo "No containers to remove"
           docker-compose -f ./.deploy/docker-compose.yml up -d
 
+
           docker-compose exec app php artisan migrate --force
-          echo "API Deployment completed successfully!"
+          echo "Deployment completed successfully!"
