@@ -26,16 +26,16 @@ jobs:
       - name: Set up SSH
         uses: webfactory/ssh-agent@v0.5.3
         with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}  # Ваш приватный ключ
+          ssh-private-key: ${{ secrets.SSH_KEY }}  # Ваш приватный ключ
 
       - name: Copy docker-compose.yml to server
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          key: ${{ secrets.SSH_KEY }}
           port: 22
-          source: "./.deploy/docker-compose.yml"  # Путь к файлу на вашем репозитории
+          source: "./docker-compose.gallery.yml"  # Путь к файлу на вашем репозитории
           target: "$HOME"  # Путь на сервере
 
       - name: Deploy and run migrations
@@ -75,11 +75,11 @@ jobs:
             cd ~
 
             # Pull the latest images and start the containers
-            docker-compose pull
-            docker-compose up -d
+            docker-compose -f docker-compose.gallery.yml pull
+            docker-compose -f docker-compose.gallery.yml up -d
 
             # Running migrations
-            docker-compose exec app php artisan migrate --force
+            docker-compose -f docker-compose.gallery.yml exec app php artisan migrate --force
 
             echo "Deployment completed successfully!"
         env:
