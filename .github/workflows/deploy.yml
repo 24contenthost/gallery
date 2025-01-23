@@ -11,12 +11,13 @@ on:
     branches:
       - main
     paths:
-      - '.deploy/**'  # Срабатывает при изменениях в папке .deploy
-  workflow_dispatch:  # Возможность ручного запуска
+      - '.deploy/**'
+      - '.github/deploy.yml**'
+  workflow_dispatch:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest  # Используем GitHub-hosted runner
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
