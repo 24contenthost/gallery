@@ -16,22 +16,75 @@ on:
 
 jobs:
   deploy:
-    runs-on: [self-hosted, gallery]
+    runs-on: ubuntu-latest  # Используем GitHub-hosted runner
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.5.3
         with:
-          sparse-checkout: |
-            .deploy/docker-compose.yml
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}  # Ваш приватный ключ
+
+      - name: Copy docker-compose.yml to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          source: "./.deploy/docker-compose.yml"  # Путь к файлу на вашем репозитории
+          target: "$HOME"  # Путь на сервере
 
       - name: Deploy and run migrations
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            # Script for deploying the fullstack application
+
+            export COMPOSE_PROJECT_NAME=gallery
+            export APP_ENV=${{ secrets.ENV }}
+            export APP_DEBUG=false
+            export APP_NAME=${{ secrets.APP_NAME }}
+            export APP_URL=${{ secrets.APP_URL }}
+            export FRONTEND_URL=${{ secrets.FRONTEND_URL }}
+            export SESSION_DOMAIN=${{ secrets.SESSION_DOMAIN }}
+            export SANCTUM_STATEFUL_DOMAINS=${{ secrets.SANCTUM_STATEFUL_DOMAINS }}
+            export DB_CONNECTION=${{ secrets.DB_CONNECTION }}
+            export NODE_ENV=${{ secrets.ENV }}
+            export VITE_BASE_URL=${{ secrets.VITE_BASE_URL }}
+            export APP_KEY=${{ secrets.APP_KEY }}
+            export DB_USERNAME=${{ secrets.MYSQL_USER }}
+            export DB_PASSWORD=${{ secrets.MYSQL_PASSWORD }}
+            export DB_HOST=${{ secrets.MYSQL_SERVICE_NAME }}
+            export DB_PORT=${{ secrets.MYSQL_PORT }}
+            export DB_DATABASE=${{ secrets.MYSQL_DATABASE_GALLERY }}
+
+            # Debug environment variables
+            echo "APP_ENV: $APP_ENV"
+            echo "APP_NAME: $APP_NAME"
+            echo "MYSQL_DATABASE: $DB_DATABASE"
+            
+            # Navigate to the deploy folder and initialize
+            cd ~
+
+            # Pull the latest images and start the containers
+            docker-compose pull
+            docker-compose up -d
+
+            # Running migrations
+            docker-compose exec app php artisan migrate --force
+
+            echo "Deployment completed successfully!"
         env:
-          COMPOSE_PROJECT_NAME: gallery
-          APP_ENV: ${{ secrets.ENV }}
-          APP_DEBUG: false
+          ENV: ${{ secrets.ENV }}
           APP_NAME: ${{ secrets.APP_NAME }}
-          APP_URL:  ${{ secrets.APP_URL }}
+          APP_URL: ${{ secrets.APP_URL }}
           FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
           SESSION_DOMAIN: ${{ secrets.SESSION_DOMAIN }}
           SANCTUM_STATEFUL_DOMAINS: ${{ secrets.SANCTUM_STATEFUL_DOMAINS }}
@@ -44,15 +97,3 @@ jobs:
           DB_HOST: ${{ secrets.MYSQL_SERVICE_NAME }}
           DB_PORT: ${{ secrets.MYSQL_PORT }}
           DB_DATABASE: ${{ secrets.MYSQL_DATABASE_GALLERY }}
-
-
-        run: |
-          echo "COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME}"
-
-          docker-compose -f ./.deploy/docker-compose.yml pull
-          docker-compose -f ./.deploy/docker-compose.yml down --remove-orphans || echo "No containers to remove"
-          docker-compose -f ./.deploy/docker-compose.yml up -d
-
-
-          docker-compose exec app php artisan migrate --force
-          echo "Deployment completed successfully!"
