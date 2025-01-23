@@ -3,16 +3,14 @@ name: Deploy Client Application
 on:
   workflow_run:
     workflows:
-      - "Build and Push API Docker Images"  # Сборка и пуш API
-      - "Build and Push Client Docker Images"  # Сборка и пуш клиентской части
+      - "Build and Push Client Docker Images"
     types:
       - completed
   push:
     branches:
       - main
     paths:
-      - '.deploy/**'
-      - '.github/workflows/deploy.yml**'
+      - '.github/workflows/api-deploy.yml'
   workflow_dispatch:
 
 jobs:
@@ -35,66 +33,34 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           port: 22
-          source: "./docker-compose.gallery.yml"  # Путь к файлу на вашем репозитории
-          target: "$HOME"  # Путь на сервере
+          source: "./docker-compose.client.prod.yml"
+          target: "$HOME"
 
       - name: Deploy and run migrations
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_cd lKEY }}
+          key: ${{ secrets.SSH_KEY }}
           port: 22
           script: |
             # Script for deploying the fullstack application
 
-            export COMPOSE_PROJECT_NAME=gallery
-            export APP_ENV=${{ secrets.ENV }}
-            export APP_DEBUG=false
-            export APP_NAME=${{ secrets.APP_NAME }}
-            export APP_URL=${{ secrets.APP_URL }}
-            export FRONTEND_URL=${{ secrets.FRONTEND_URL }}
-            export SESSION_DOMAIN=${{ secrets.SESSION_DOMAIN }}
-            export SANCTUM_STATEFUL_DOMAINS=${{ secrets.SANCTUM_STATEFUL_DOMAINS }}
-            export DB_CONNECTION=${{ secrets.DB_CONNECTION }}
             export NODE_ENV=${{ secrets.ENV }}
             export VITE_BASE_URL=${{ secrets.VITE_BASE_URL }}
-            export APP_KEY=${{ secrets.APP_KEY }}
-            export DB_USERNAME=${{ secrets.MYSQL_USER }}
-            export DB_PASSWORD=${{ secrets.MYSQL_PASSWORD }}
-            export DB_HOST=${{ secrets.MYSQL_SERVICE_NAME }}
-            export DB_PORT=${{ secrets.MYSQL_PORT }}
-            export DB_DATABASE=${{ secrets.MYSQL_DATABASE_GALLERY }}
-
-            # Debug environment variables
-            echo "APP_ENV: $APP_ENV"
-            echo "APP_NAME: $APP_NAME"
-            echo "MYSQL_DATABASE: $DB_DATABASE"
+            
+           
             
             # Navigate to the deploy folder and initialize
             cd ~
 
             # Pull the latest images and start the containers
-            docker-compose -f docker-compose.gallery.yml pull
-            docker-compose -f docker-compose.gallery.yml up -d
+            docker-compose -f docker-compose.client.prod.yml pull
+            docker-compose -f docker-compose.client.prod.yml up -d
 
-            # Running migrations
-            docker-compose -f docker-compose.gallery.yml exec app php artisan migrate --force
-
+            #
             echo "Deployment completed successfully!"
         env:
           ENV: ${{ secrets.ENV }}
-          APP_NAME: ${{ secrets.APP_NAME }}
-          APP_URL: ${{ secrets.APP_URL }}
-          FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
-          SESSION_DOMAIN: ${{ secrets.SESSION_DOMAIN }}
-          SANCTUM_STATEFUL_DOMAINS: ${{ secrets.SANCTUM_STATEFUL_DOMAINS }}
-          DB_CONNECTION: ${{ secrets.DB_CONNECTION }}
           NODE_ENV: ${{ secrets.ENV }}
           VITE_BASE_URL: ${{ secrets.VITE_BASE_URL }}
-          APP_KEY: ${{ secrets.APP_KEY }}
-          DB_USERNAME: ${{ secrets.MYSQL_USER }}
-          DB_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
-          DB_HOST: ${{ secrets.MYSQL_SERVICE_NAME }}
-          DB_PORT: ${{ secrets.MYSQL_PORT }}
-          DB_DATABASE: ${{ secrets.MYSQL_DATABASE_GALLERY }}
