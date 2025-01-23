@@ -3,20 +3,19 @@ name: Deploy FullStack Application
 on:
   workflow_run:
     workflows:
-      - "Build and Push API Docker Images"  # Сборка и пуш API
-      - "Build and Push Client Docker Images"  # Сборка и пуш клиентской части
+      - "Build and Push API Docker Images"
     types:
       - completed
   push:
     branches:
       - main
     paths:
-      - '.deploy/**'  # Срабатывает при изменениях в папке .deploy
-  workflow_dispatch:  # Возможность ручного запуска
+      - '.github/workflows/api-deploy.yml'
+  workflow_dispatch:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest  # Используем GitHub-hosted runner
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
@@ -25,24 +24,23 @@ jobs:
       - name: Set up SSH
         uses: webfactory/ssh-agent@v0.5.3
         with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}  # Ваш приватный ключ
+          ssh-private-key: ${{ secrets.SSH_KEY }}
 
       - name: Copy docker-compose.yml to server
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          key: ${{ secrets.SSH_KEY }}
           port: 22
-          source: "./.deploy/docker-compose.yml"  # Путь к файлу на вашем репозитории
-          target: "$HOME"  # Путь на сервере
-
+          source: "./docker-compose.api.prod.yml"
+          target: "$HOME"
       - name: Deploy and run migrations
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          key: ${{ secrets.SSH_cd lKEY }}
           port: 22
           script: |
             # Script for deploying the fullstack application
@@ -56,8 +54,6 @@ jobs:
             export SESSION_DOMAIN=${{ secrets.SESSION_DOMAIN }}
             export SANCTUM_STATEFUL_DOMAINS=${{ secrets.SANCTUM_STATEFUL_DOMAINS }}
             export DB_CONNECTION=${{ secrets.DB_CONNECTION }}
-            export NODE_ENV=${{ secrets.ENV }}
-            export VITE_BASE_URL=${{ secrets.VITE_BASE_URL }}
             export APP_KEY=${{ secrets.APP_KEY }}
             export DB_USERNAME=${{ secrets.MYSQL_USER }}
             export DB_PASSWORD=${{ secrets.MYSQL_PASSWORD }}
@@ -69,16 +65,16 @@ jobs:
             echo "APP_ENV: $APP_ENV"
             echo "APP_NAME: $APP_NAME"
             echo "MYSQL_DATABASE: $DB_DATABASE"
-
+            
             # Navigate to the deploy folder and initialize
             cd ~
 
             # Pull the latest images and start the containers
-            docker-compose pull
-            docker-compose up -d
+            docker-compose -f docker-compose.api.prod.yml pull
+            docker-compose -f docker-compose.api.prod.yml up -d
 
             # Running migrations
-            docker-compose exec app php artisan migrate --force
+            docker-compose -f docker-compose.api.prod.yml exec app php artisan migrate --force
 
             echo "Deployment completed successfully!"
         env:
@@ -90,7 +86,6 @@ jobs:
           SANCTUM_STATEFUL_DOMAINS: ${{ secrets.SANCTUM_STATEFUL_DOMAINS }}
           DB_CONNECTION: ${{ secrets.DB_CONNECTION }}
           NODE_ENV: ${{ secrets.ENV }}
-          VITE_BASE_URL: ${{ secrets.VITE_BASE_URL }}
           APP_KEY: ${{ secrets.APP_KEY }}
           DB_USERNAME: ${{ secrets.MYSQL_USER }}
           DB_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}

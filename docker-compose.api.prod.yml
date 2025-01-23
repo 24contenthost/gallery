@@ -1,4 +1,4 @@
-name: "gallery"
+name: "gallery-api"
 services:
     nginx-api:
         image: alonecat/24contenthost-gallery-api-nginx
@@ -37,23 +37,6 @@ services:
             - APP_DEBUG=${APP_DEBUG}
         volumes:
             - app_data:/var/www
-        networks:
-            - content_host_network
-
-    app-client:
-        image: alonecat/24contenthost-gallery-client:latest
-        restart: unless-stopped
-        ports:
-            - "3000:3000"
-        environment:
-            NODE_ENV: ${NODE_ENV}
-            VITE_BASE_URL: ${VITE_BASE_URL}
-        labels:
-            - "traefik.enable=true"
-            - "traefik.http.routers.client-app-client.rule=Host(`gallery.24contenthost.ru`)"
-            - "traefik.http.routers.client-app-client.entrypoints=websecure"
-            - "traefik.http.routers.client-app-client.tls.certresolver=letsencrypt"
-            - "traefik.http.services.client-app-client.loadbalancer.server.port=3000"
         networks:
             - content_host_network
 
