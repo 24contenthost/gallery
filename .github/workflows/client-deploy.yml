@@ -1,4 +1,4 @@
-name: Deploy FullStack Application
+name: Deploy Client Application
 
 on:
   workflow_run:
