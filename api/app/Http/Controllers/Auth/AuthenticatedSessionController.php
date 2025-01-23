@@ -20,7 +20,7 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        Log::info('login ok!');
+        Log::info('login ok!!');
 
         return response()->noContent();
     }
