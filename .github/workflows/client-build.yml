@@ -26,5 +26,5 @@ jobs:
 
       - name: Build and Push Client Docker Image
         run: |
-          docker build -f ./client/.deploy/Dockerfile -t alonecat/24contenthost-gallery-client:latest ./client
+          docker build -f ./client/.docker/prod/Dockerfile -t alonecat/24contenthost-gallery-client:latest ./client
           docker push alonecat/24contenthost-gallery-client:latest
