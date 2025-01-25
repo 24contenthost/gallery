@@ -3,7 +3,7 @@ services:
   client-app:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: .docker/local/Dockerfile
     restart: always
     ports:
       - "3000:4173"

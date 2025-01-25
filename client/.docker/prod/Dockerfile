@@ -1,7 +1,7 @@
 FROM node:20-alpine AS build
 
 
-COPY package*.json ./
+COPY package*.json .
 
 RUN npm ci
 
@@ -14,8 +14,8 @@ RUN npm run build
 FROM nginx:stable-alpine
 
 COPY --from=build /dist /usr/share/nginx/html
-COPY .deploy/nginx.conf /etc/nginx/conf.d/default.conf
-COPY .deploy/entrypoint.sh /entrypoint.sh
+COPY .docker/prod/nginx.conf /etc/nginx/conf.d/default.conf
+COPY .docker/prod/entrypoint.sh /entrypoint.sh
 
 RUN chmod +x entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
