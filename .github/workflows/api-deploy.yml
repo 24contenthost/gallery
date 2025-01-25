@@ -33,7 +33,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           port: 22
-          source: "./docker-compose.api.prod.yml"
+          source: "./api/docker-compose.prod.yml"
           target: "$HOME"
       - name: Deploy and run migrations
         uses: appleboy/ssh-action@v1.2.0
