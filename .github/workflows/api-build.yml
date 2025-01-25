@@ -25,10 +25,10 @@ jobs:
 
       - name: Build and Push API Docker Image
         run: |
-          docker build -f ./api/.deploy/Dockerfile -t alonecat/24contenthost-gallery-api:latest ./api
+          docker build -f ./api/.docker/prod/Dockerfile -t alonecat/24contenthost-gallery-api:latest ./api
           docker push alonecat/24contenthost-gallery-api:latest
 
       - name: Build and Push API Nginx Docker Image
         run: |
-          docker build -f ./api/.deploy/nginx/Dockerfile -t alonecat/24contenthost-gallery-api-nginx:latest ./api
+          docker build -f ./api/.docker/prod/nginx/Dockerfile -t alonecat/24contenthost-gallery-api-nginx:latest ./api
           docker push alonecat/24contenthost-gallery-api-nginx:latest

@@ -1,0 +1,20 @@
+name: gallery-client-local
+services:
+  client-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "3000:4173"
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - VITE_BASE_URL=${VITE_BASE_URL}
+    volumes:
+      - ./:/app
+      - node_modules:/app/node_modules  # Добавляем volume для node_modules
+
+volumes:
+  app_data: {}
+  client_data: {}
+  node_modules: {}  # Объявляем volume для node_modules

@@ -17,7 +17,7 @@ RUN apk update && \
       zip && \
     rm -rf /var/cache/apk/*
 
-COPY  .deploy/php.ini /usr/local/etc/php/conf.d/
+COPY  .docker/prod/php.ini /usr/local/etc/php/conf.d/
 
 WORKDIR /var/www
 

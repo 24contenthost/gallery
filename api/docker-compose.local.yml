@@ -1,0 +1,49 @@
+name: gallery-api-local
+
+services:
+    nginx:
+        image: nginx:latest
+        volumes:
+            -   ./:/var/www
+            -   ./.docker/local/nginx/conf.d/:/etc/nginx/conf.d/
+        ports:
+            - "8000:8000"
+        container_name: app_nginx
+        depends_on:
+            - app
+        networks:
+            - gallery_api_network
+    app:
+        build:
+            context: .
+            dockerfile: .docker/local/Dockerfile
+        volumes:
+            -  ./:/var/www
+        container_name: app_php
+        depends_on:
+            - db
+        networks:
+            - gallery_api_network
+    db:
+        image: mysql:8.0
+        restart: always
+        env_file:
+            - .env
+        environment:
+            MYSQL_DATABASE: ${DB_DATABASE}
+            MYSQL_USER: ${DB_USERNAME}
+            MYSQL_PASSWORD: ${DB_PASSWORD}
+            MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+        ports:
+            - "3306:3306"
+        volumes:
+            - mysql_data:/var/lib/mysql
+        container_name: mysql
+        networks:
+            - gallery_api_network
+
+networks:
+    gallery_api_network:
+        driver: bridge
+volumes:
+    mysql_data: {}
