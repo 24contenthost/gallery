@@ -6,7 +6,6 @@ export interface User {
     created_at: string;
 }
 
-// Тип данных, отправляемых при логине
 export interface LoginData {
     email: string | null;
     password: string | null;
@@ -65,6 +64,6 @@ export interface GetUserResponse {
 }
 
 export interface AccountEditResponse {
-    user: User | null
+    user: User
 }
 

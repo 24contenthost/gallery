@@ -1,4 +1,19 @@
+<script lang="ts" setup>
+
+import {storeToRefs} from "pinia";
+import {useAuthStore} from "../../stores/auth.ts";
+import {AccountTabsLabels} from "../../constants/accountTabsLabels.ts";
+import AccountTabs from "../../components/users/AccountTabs.vue";
+
+const authStore = useAuthStore()
+
+const {user} = storeToRefs(authStore)
+
+console.debug('user', user.value)
+</script>
+
 <template>
+  <AccountTabs :active-tab="AccountTabsLabels.Info" />
   <div class="w-full max-w-md bg-white border border-gray-200 mx-auto mt-12">
     <div class="p-6 space-y-4">
       <!-- Заголовок -->
@@ -6,14 +21,13 @@
         Your account
       </h1>
 
-      <!-- Аватарка -->
+
       <div class="flex justify-center">
         <i class="fas fa-user-circle text-gray-400" style="font-size: 5rem;"></i>
       </div>
 
-      <!-- Профиль пользователя и кнопка Edit -->
       <div class="flex justify-between items-start" v-if="user">
-        <!-- Данные профиля -->
+
         <div class="space-y-2">
           <div>
             <strong class="text-gray-700">Name:</strong>
@@ -41,14 +55,3 @@
     </div>
   </div>
 </template>
-<script lang="ts" setup>
-
-import {storeToRefs} from "pinia";
-import {useAuthStore} from "../stores/auth.ts";
-
-const authStore = useAuthStore()
-
-const {user} = storeToRefs(authStore)
-
-console.debug('user', user.value)
-</script>

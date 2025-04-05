@@ -1,11 +1,16 @@
 FROM php:8.2-fpm-alpine
 
-RUN apk update && apk add --no-cache \
+
+RUN apk update && \
+    apk add --no-cache \
       libpng-dev \
+      libjpeg-turbo-dev \
+      freetype-dev \
       libzip-dev \
       zip \
       unzip \
       git && \
+    docker-php-ext-configure gd --with-freetype --with-jpeg && \
     docker-php-ext-install \
       pdo_mysql \
       bcmath \

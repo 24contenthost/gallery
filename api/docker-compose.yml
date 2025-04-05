@@ -9,6 +9,7 @@ services:
         ports:
             - "8000:8000"
         container_name: app_nginx
+
         depends_on:
             - app
         networks:
@@ -20,6 +21,23 @@ services:
         volumes:
             -  ./:/var/www
         container_name: app_php
+        env_file:
+          - .env
+        environment:
+          - APP_KEY=${APP_KEY}
+          - APP_NAME=${APP_NAME}
+          - APP_ENV=${APP_ENV}
+          - APP_URL=${APP_URL}
+          - FRONTEND_URL=${FRONTEND_URL}
+          - SESSION_DOMAIN=${SESSION_DOMAIN}
+          - SANCTUM_STATEFUL_DOMAINS=${SANCTUM_STATEFUL_DOMAINS}
+          - DB_CONNECTION=${DB_CONNECTION}
+          - DB_HOST=${DB_HOST}
+          - DB_PORT=${DB_PORT}
+          - DB_DATABASE=${DB_DATABASE}
+          - DB_USERNAME=${DB_USERNAME}
+          - DB_PASSWORD=${DB_PASSWORD}
+          - APP_DEBUG=${APP_DEBUG}
         depends_on:
             - db
         networks:

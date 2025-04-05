@@ -1,15 +1,16 @@
 # Базовый образ PHP с FPM
 FROM php:8.2-fpm-alpine
 
-# Установка необходимых пакетов и расширений PHP через apk
 RUN apk update && \
     apk add --no-cache \
       libpng-dev \
+      libjpeg-turbo-dev \
+      freetype-dev \
       libzip-dev \
-      libpq-dev \
       zip \
       unzip \
       git && \
+    docker-php-ext-configure gd --with-freetype --with-jpeg && \
     docker-php-ext-install \
       pdo_mysql \
       bcmath \
