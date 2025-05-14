@@ -42,7 +42,7 @@ export const useFormRequest = <T, R = void>(
         } catch (error: unknown) {
             if (error instanceof UnauthorizedError) {
                 authStore.setUser(null);
-                await router.push('/login');
+                await router.push({ name: "login" });
             } else if (error instanceof ApiValidationError) {
                 hooks?.onFormError?.(error.errors);
             } else if (error instanceof ApiError) {

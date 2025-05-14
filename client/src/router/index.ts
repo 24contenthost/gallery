@@ -5,96 +5,35 @@ import {
     RouteLocationNormalized,
     RouteRecordRaw,
 } from "vue-router";
-import {useAuthStore} from "../stores/auth.ts";
+import {useAuthStore} from "@/stores/auth.ts";
 
 const routes: Array<RouteRecordRaw> = [
-    {
-        path: '/',
-        name: 'Home',
-        component: () => import('../views/Home.vue'),
-        meta: {guestOnly: true}
-    },
-    {
-        path: '/about',
-        name: 'About',
-        component: () => import('../views/About.vue'),
-    },
-    {
-        path: '/login',
-        component: () => import('../views/Login.vue'),
-        name: 'login',
-        meta: {guestOnly: true}
-    },
-    {path: '/register', component: () => import('../views/Register.vue'), meta: {guestOnly: true}},
-    {
-        path: '/account',
-        name: 'account',
-        component: () => import('../views/account/Account.vue'),
-        meta: { requiresAuth: true }
-    },
-    {
-        path: '/account-edit',
-        name: 'account-edit',
-        component: () => import('../views/account/AccountEdit.vue'),
-        meta: { requiresAuth: true }
-    },
-    {
-        path: '/account/galleries',
-        name: 'account-galleries',
-        component: () => import('../views/account/galleries/AccountGalleries.vue'),
-        meta: { requiresAuth: true }
-    },
-    {
-        path: '/account/images',
-        name: 'account-images',
-        component: () => import('../views/account/images/AccountImages.vue'),
-        meta: { requiresAuth: true }
-    },
-    {
-        path: '/account/images/upload',
-        name: 'account-images-upload',
-        component: () => import('../views/account/images/AccountImagesUpload.vue'),
-        meta: { requiresAuth: true }
-    },
-    {
-        path: '/account/galleries/:id',
-        name: 'account-gallery-detail',
-        component: () => import('../views/account/galleries/AccountGalleryDetail.vue'),
-        meta: { requiresAuth: true }
-    },
-    {
-        path: '/account/galleries/:id/manage-images',
-        name: 'account-gallery-manage-images',
-        component: () => import('../views/account/galleries/AccountGalleriesManageImages.vue'),
-        meta: { requiresAuth: true }
-    },
+    { path: '/', name: 'home', component: () => import('@/views/Explore.vue') },
+    { path: '/about', name: 'about', component: () => import('@/views/About.vue') },
 
-    {
-        path: '/account/galleries/create',
-        name: 'account-gallery-create',
-        component: () => import('../views/account/galleries/AccountGalleryCreate.vue'),
-        meta: { requiresAuth: true }
-    },
-    {
-        path: '/u/:id',
-        name: 'UserProfile',
-        component: () => import('../views/users/UserProfileInfo.vue'),
-        meta: { requiresAuth: true },
-    },
-    {
-        path: '/u/:id/images',
-        name: 'UserProfileImages',
-        component: () => import('../views/users/UserProfileImages.vue'),
-        meta: { requiresAuth: true },
-    },
-    {
-        path: '/u/:id/galleries',
-        name: 'UserProfileGalleries',
-        component: () => import('../views/users/UserProfileGalleries.vue'),
-        meta: { requiresAuth: true },
-    },
-    {path: '/:pathMatch(.*)*', component: () => import('../views/Page404.vue'), name: 'page404'},
-];
+    // Auth
+    { path: '/auth/login', name: 'login', component: () => import('@/views/auth/Login.vue'), meta: { guestOnly: true } },
+    { path: '/auth/register', name: 'register', component: () => import('@/views/auth/Register.vue'), meta: { guestOnly: true } },
+
+    // Account
+    { path: '/account', name: 'account', component: () => import('@/views/account/info/Index.vue'), meta: { requiresAuth: true } },
+    { path: '/account/info/edit', name: 'account-info-edit', component: () => import('../views/account/info/EditInfo.vue'), meta: { requiresAuth: true } },
+
+    { path: '/account/images', name: 'account-images', component: () => import('@/views/account/images/Index.vue'), meta: { requiresAuth: true } },
+    { path: '/account/images/upload', name: 'account-images-upload', component: () => import('@/views/account/images/Upload.vue'), meta: { requiresAuth: true } },
+
+    { path: '/account/galleries', name: 'account-galleries', component: () => import('@/views/account/galleries/Index.vue'), meta: { requiresAuth: true } },
+    { path: '/account/galleries/:id', name: 'account-gallery-detail', component: () => import('@/views/account/galleries/Detail.vue'), meta: { requiresAuth: true } },
+
+    // Users (public)
+    { path: '/u/:id', name: 'user-info', component: () => import('@/views/users/Info.vue') },
+    { path: '/u/:id/images', name: 'user-images', component: () => import('@/views/users/Images.vue') },
+    { path: '/u/:id/galleries', name: 'user-galleries', component: () => import('@/views/users/Galleries.vue') },
+
+    // Catch-all
+    { path: '/:pathMatch(.*)*', name: 'not-found', component: () => import('@/views/Page404.vue') },
+]
+
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),

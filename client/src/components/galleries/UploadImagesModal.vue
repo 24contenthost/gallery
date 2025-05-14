@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, defineProps, defineEmits } from "vue"
-import { useFormRequest } from "../../composables/useFormRequest"
-import { galleriesService } from "../../services/galleries"
-import { UploadImagesData, Gallery } from "../../types/galleries"
+import { useFormRequest } from "../../composables/useFormRequest.ts"
+import { galleriesService } from "../../services/galleries.ts"
+import { UploadImagesData, Gallery } from "../../types/galleries.ts"
 
 const props = defineProps<{ galleryId: number }>()
 const emit = defineEmits<{

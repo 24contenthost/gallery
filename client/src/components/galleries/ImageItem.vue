@@ -1,16 +1,15 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import type { Image } from "../../types/galleries";
-import ConfirmDialogModal from "../ConfirmDialogModal.vue";
+import {ref} from "vue";
+import {Image} from "@/types/images.ts";
 
-const props = defineProps<{ image: Image; index: number }>();
-const emit = defineEmits<{ (event: "delete", id: number): void }>();
+defineProps<{ image: Image; index: number }>();
+//const emit = defineEmits<{ (event: "delete", id: number): void }>();
 
 const isDeleteModalOpen = ref(false);
 const openDeleteModal = () => (isDeleteModalOpen.value = true);
-const confirmDelete = () => {
-  emit("delete", props.image.id);
-};
+// const confirmDelete = () => {
+//   emit("delete", props.image.id);
+// };
 </script>
 
 <template>
@@ -33,8 +32,6 @@ const confirmDelete = () => {
       <i class="fa fa-trash"></i>
     </button>
 
-    <ConfirmDialogModal v-model="isDeleteModalOpen" @confirm="confirmDelete">
-      Are you sure you want to delete <strong>{{ props.image.name }}</strong>?
-    </ConfirmDialogModal>
+
   </div>
 </template>

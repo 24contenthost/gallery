@@ -1,7 +1,8 @@
 
-import { UserProfile } from "../types/userProfile";
-import {apiRequest} from "../api/apiRequest.ts";
-import {Gallery, Image} from "../types/galleries.ts";
+import { UserProfile } from "@/types/userProfile";
+import {apiRequest} from "@/api/apiRequest.ts";
+import {Gallery} from "@/types/galleries.ts";
+import {Image} from "@/types/images.ts";
 
 
 export const userProfileService = {

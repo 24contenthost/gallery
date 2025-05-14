@@ -24,7 +24,7 @@ export const useQuery = <T>(
         } catch (err: unknown) {
             if (err instanceof UnauthorizedError) {
                 authStore.setUser(null);
-                await router.push('/login');
+                await router.push({ name: "login" });
             } else if (err instanceof ForbiddenError || err instanceof NotFoundError || err instanceof ApiError) {
                 options?.onError?.(err);
             }

@@ -26,3 +26,14 @@ export interface GalleryDeleteData {
 }
 
 
+export interface AttachImagesToGalleryData {
+    galleryId: number;
+    imageIds: number[];
+}
+
+export interface DetachImageFromGalleryData {
+    galleryId: number;
+    imageId: number;
+}
+
+

@@ -17,4 +17,4 @@ services:
 volumes:
   app_data: {}
   client_data: {}
-  node_modules: {}  # Объявляем volume для node_modules
+  node_modules: {}

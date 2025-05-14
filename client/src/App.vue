@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import Header from "./components/Header.vue";
+import Header from "./components/app/Header.vue";
 import { useAuthStore } from "./stores/auth.ts";
 import { onMounted } from "vue";
 
